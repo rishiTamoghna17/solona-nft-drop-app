@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import { useProgram , useClaimNFT, useClaimConditions, useProgramMetadata} from "@thirdweb-dev/react/solana"
 import styles from "../styles/Home.module.css";
 
 // Default styles that can be overridden by your app
@@ -20,11 +21,16 @@ const Home: NextPage = () => {
   //   your_nft_collection_address,
   //   "nft-collection"
   // );
+  const { program } = useProgram("Dvxivc1jJFsetsvqsNBDedesLBBFEHeaAfqFaFuBYUmR", "nft-drop")
+  const { mutateAsync: claim, isLoading, error } = useClaimNFT(program);
+
+  const {data:conditions,isLoading:conditionloading} = useClaimConditions(program)
+  const {data:metadata,isLoading:metaloading} = useProgramMetadata(program)
 
   return (
     <>
       <div className={styles.container}>
-        <div className={styles.iconContainer}>
+        {/* <div className={styles.iconContainer}>  
           <Image
             src="/thirdweb.svg"
             height={75}
@@ -56,9 +62,14 @@ const Home: NextPage = () => {
             </a>
           </b>
           .
-        </p>
+        </p> */}
 
         <WalletMultiButtonDynamic />
+        {metaloading?<p>loading.....</p>: <p>{metadata?.description}</p>}
+        <button disabled={isLoading} onClick={() => claim({amount: 1})}>
+      Claim
+    </button>
+    {conditionloading?<p>loading.....</p>: <p>{conditions?.totalAvailableSupply}/{conditions?.claimedSupply}</p>}
       </div>
     </>
   );
